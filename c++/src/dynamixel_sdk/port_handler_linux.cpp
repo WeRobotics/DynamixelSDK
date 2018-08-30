@@ -27,6 +27,7 @@
 #include <sys/time.h>
 #include <sys/ioctl.h>
 #include <linux/serial.h>
+#include <wiringPi.h>
 
 #include "port_handler_linux.h"
 
@@ -70,6 +71,8 @@ PortHandlerLinux::PortHandlerLinux(const char *port_name)
 
 bool PortHandlerLinux::openPort()
 {
+  wiringPiSetup();
+  pinMode(0, OUTPUT);
   return setBaudRate(baudrate_);
 }
 
@@ -134,7 +137,13 @@ int PortHandlerLinux::readPort(uint8_t *packet, int length)
 
 int PortHandlerLinux::writePort(uint8_t *packet, int length)
 {
-  return write(socket_fd_, packet, length);
+  digitalWrite(0, HIGH);
+  usleep(10);
+  int rtn_msg;
+  rtn_msg = write(socket_fd_, packet, length);
+  usleep(length * 8);
+  digitalWrite(0, LOW);
+  return rtn_msg;
 }
 
 void PortHandlerLinux::setPacketTimeout(uint16_t packet_length)
@@ -161,9 +170,9 @@ bool PortHandlerLinux::isPacketTimeout()
 
 double PortHandlerLinux::getCurrentTime()
 {
-	struct timespec tv;
-	clock_gettime(CLOCK_REALTIME, &tv);
-	return ((double)tv.tv_sec * 1000.0 + (double)tv.tv_nsec * 0.001 * 0.001);
+  struct timespec tv;
+  clock_gettime(CLOCK_REALTIME, &tv);
+  return ((double)tv.tv_sec * 1000.0 + (double)tv.tv_nsec * 0.001 * 0.001);
 }
 
 double PortHandlerLinux::getTimeSinceStart()
