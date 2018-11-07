@@ -138,10 +138,11 @@ int PortHandlerLinux::readPort(uint8_t *packet, int length)
 int PortHandlerLinux::writePort(uint8_t *packet, int length)
 {
   digitalWrite(0, HIGH);
-  usleep(10);
+  usleep(10);   // wait for voltage to rise
   int rtn_msg;
   rtn_msg = write(socket_fd_, packet, length);
-  usleep(length * 8);
+  // Configured for baudrate 57600
+  usleep(length * 180);   // nb_byte * time for a byte (approximate, check with oscilloscope !)
   digitalWrite(0, LOW);
   return rtn_msg;
 }
