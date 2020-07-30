@@ -72,7 +72,7 @@ PortHandlerLinux::PortHandlerLinux(const char *port_name)
 bool PortHandlerLinux::openPort()
 {
   wiringPiSetup();
-  pinMode(0, OUTPUT);
+  pinMode(24, OUTPUT);
   return setBaudRate(baudrate_);
 }
 
@@ -137,13 +137,13 @@ int PortHandlerLinux::readPort(uint8_t *packet, int length)
 
 int PortHandlerLinux::writePort(uint8_t *packet, int length)
 {
-  digitalWrite(0, HIGH);
+  digitalWrite(24, HIGH);
   usleep(10);   // wait for voltage to rise
   int rtn_msg;
   rtn_msg = write(socket_fd_, packet, length);
   // Configured for baudrate 57600
   usleep(length * 180);   // nb_byte * time for a byte (approximate, check with oscilloscope !)
-  digitalWrite(0, LOW);
+  digitalWrite(24, LOW);
   return rtn_msg;
 }
 
